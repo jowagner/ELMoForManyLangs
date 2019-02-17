@@ -240,6 +240,7 @@ def test_main():
       handlers[output_format, output_layer] = \
         h5py.File(filename, 'w') if output_format == 'hdf5' else open(filename, 'w')
 
+  batch_index = 0
   for w, c, lens, masks, texts in zip(test_w, test_c, test_lens, test_masks, test_text):
     output = model.forward(w, c, masks)
     for i, text in enumerate(texts):
@@ -267,7 +268,7 @@ def test_main():
         else:
           payload = data[output_layer]
         if output_format == 'hdf5':
-          fout.create_dataset(sent, payload.shape, dtype='float32', data=payload)
+          fout.create_dataset('%d\t%d\t%d\t%s' %(cnt, batch_index, i, sent), payload.shape, dtype='float32', data=payload)
         else:
           for word, row in zip(text, payload):
             print('{0}\t{1}'.format(word, '\t'.join(['{0:.8f}'.format(elem) for elem in row])), file=fout)
@@ -276,6 +277,7 @@ def test_main():
       cnt += 1
       if cnt % 1000 == 0:
         logging.info('Finished {0} sentences.'.format(cnt))
+    batch_index += 1
   for _, handler in handlers.items():
     handler.close()
 
