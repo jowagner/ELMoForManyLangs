@@ -224,7 +224,6 @@ def test_main():
   # configure the model to evaluation mode.
   model.eval()
 
-  sent_set = set()
   cnt = 0
 
   output_formats = args.output_format.split(',')
@@ -247,9 +246,6 @@ def test_main():
       sent = '\t'.join(text)
       sent = sent.replace('.', '$period$')
       sent = sent.replace('/', '$backslash$')
-      if sent in sent_set:
-        continue
-      sent_set.add(sent)
       if config['encoder']['name'].lower() == 'lstm':
         data = output[i, 1:lens[i]-1, :].data
         if use_cuda:
